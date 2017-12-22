@@ -8,7 +8,7 @@ using ObservableMessaging.Core.Interfaces;
 
 namespace ObservableMessaging.IbmMq
 {
-    public class InboundMessageQueue : IObservable<MQMessage>, ICancellable
+    public class InboundMessageQueue : IObservable<MQMessage>, ICancellable, IDisposable
     {
         private readonly string _qmgr;
         private readonly string _qname;
@@ -20,7 +20,7 @@ namespace ObservableMessaging.IbmMq
         private readonly object _connectionLock = new object();
         private readonly Subject<MQMessage> _subject = new Subject<MQMessage>();
         private readonly Hashtable _connectionProperties = new Hashtable();
-        private readonly Task[] _dequeueTasks ;
+        private readonly Task[] _dequeueTasks;
 
         public InboundMessageQueue(
             string qmgr, 
@@ -58,8 +58,7 @@ namespace ObservableMessaging.IbmMq
                 _dequeueTasks[i] = Task.Factory.StartNew(DequeueTask);
         }
 
-        private void DequeueTask() {
-            
+        private void DequeueTask() {      
             MQQueueManager queueManager = null;
             MQQueue queue = null; 
 
@@ -105,24 +104,44 @@ namespace ObservableMessaging.IbmMq
             _cancellationTokenSource.Cancel();
             Task.WaitAll(_dequeueTasks);
         }
-    
-    }
 
-    public class OutboundMessageQueue : IObserver<MQMessage>
-    {
-        public void OnCompleted()
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
         {
-            throw new NotImplementedException();
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects).
+                    Cancel();
+                    _cancellationTokenSource.Dispose();
+                    _subject.Dispose();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // TODO: set large fields to null.
+
+                disposedValue = true;
+            }
         }
 
-        public void OnError(Exception error)
-        {
-            throw new NotImplementedException();
-        }
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~InboundMessageQueue() {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
 
-        public void OnNext(MQMessage value)
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
         {
-            throw new NotImplementedException();
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
         }
+        #endregion
+
     }
 }
