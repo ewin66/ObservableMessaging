@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WebSphereMqClient" Version="8.0.0.7" />
+    <PackageReference Include="System.Reactive" Version="3.1.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ObservableMessaging.Core\ObservableMessaging.Core.csproj" />
+  </ItemGroup>
+</Project>
