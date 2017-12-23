@@ -20,8 +20,20 @@ namespace ObservableMessaging.IbmMq
         private readonly object _connectionLock = new object();
         private readonly Subject<MQMessage> _subject = new Subject<MQMessage>();
         private readonly Hashtable _connectionProperties = new Hashtable();
-        private readonly Task[] _dequeueTasks;
 
+        private Task[] _dequeueTasks;
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="qmgr"></param>
+        /// <param name="qname"></param>
+        /// <param name="channel"></param>
+        /// <param name="host"></param>
+        /// <param name="port"></param>
+        /// <param name="concurrentWorkers"></param>
+        /// <param name="useTransactions"></param>
+        /// <param name="autoStart"></param>
         public InboundMessageQueue(
             string qmgr, 
             string qname, 
@@ -29,7 +41,8 @@ namespace ObservableMessaging.IbmMq
             string host=null, 
             int? port=null, 
             int concurrentWorkers = 1, 
-            bool useTransactions = true) 
+            bool useTransactions = true,
+            bool autoStart = true) 
         {
             _qmgr = qmgr;
             _qname = qname;
@@ -53,9 +66,17 @@ namespace ObservableMessaging.IbmMq
             _mqgmo.Options |= MQC.MQGMO_WAIT;
             _mqgmo.Options |= MQC.MQGMO_FAIL_IF_QUIESCING;
 
-            _dequeueTasks = new Task[_concurrentWorkers];
-            for (int i = 0; i < _concurrentWorkers; i++)
-                _dequeueTasks[i] = Task.Factory.StartNew(DequeueTask);
+            if (autoStart) {
+                Start();
+            }
+        }
+
+        public void Start() {
+            if (_dequeueTasks == null) {
+                _dequeueTasks = new Task[_concurrentWorkers];
+                for (int i = 0; i < _concurrentWorkers; i++)
+                    _dequeueTasks[i] = Task.Factory.StartNew(DequeueTask);
+            }
         }
 
         private void DequeueTask() {      
@@ -97,7 +118,6 @@ namespace ObservableMessaging.IbmMq
         {
             return _subject.Subscribe(observer);
         }
-
 
         public void Cancel()
         {

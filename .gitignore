@@ -286,3 +286,8 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+/ObservableMessaging.Core.2
+/ObservableMessaging.Core.1/Interfaces
+/ObservableMessaging.IbmMq.3
+/ObservableMessaging.IbmMq.2
+/ObservableMessaging.IbmMq.1

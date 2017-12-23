@@ -1,14 +1,139 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{9A869466-4B12-4749-AE42-4B3A7EE46B31}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ObservableMessaging.IbmMq</RootNamespace>
+    <AssemblyName>ObservableMessaging.IbmMq</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
   </PropertyGroup>
-
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="WebSphereMqClient" Version="8.0.0.7" />
-    <PackageReference Include="System.Reactive" Version="3.1.1" />
+    <Reference Include="amqmdmsg, Version=8.0.0.7, Culture=neutral, PublicKeyToken=ab28406a0e0bb022, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\amqmdmsg.dll</HintPath>
+    </Reference>
+    <Reference Include="amqmdnet, Version=8.0.0.7, Culture=neutral, PublicKeyToken=dd3cb1c9aae9ec97, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\amqmdnet.dll</HintPath>
+    </Reference>
+    <Reference Include="amqmdnm, Version=8.0.0.7, Culture=neutral, PublicKeyToken=ba95863d803c00a4, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\amqmdnm.dll</HintPath>
+    </Reference>
+    <Reference Include="amqmdnsp, Version=8.0.0.7, Culture=neutral, PublicKeyToken=4ec3909022c7abcc, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\amqmdnsp.dll</HintPath>
+    </Reference>
+    <Reference Include="amqmdxcs, Version=8.0.0.7, Culture=neutral, PublicKeyToken=7a58d55a51981a15, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\amqmdxcs.dll</HintPath>
+    </Reference>
+    <Reference Include="IBM.XMS, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.dll</HintPath>
+    </Reference>
+    <Reference Include="IBM.XMS.Admin, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Admin.dll</HintPath>
+    </Reference>
+    <Reference Include="IBM.XMS.Admin.Objects, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Admin.Objects.dll</HintPath>
+    </Reference>
+    <Reference Include="IBM.XMS.Client.Impl, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Client.Impl.dll</HintPath>
+    </Reference>
+    <Reference Include="IBM.XMS.Client.WMQ, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Client.WMQ.dll</HintPath>
+    </Reference>
+    <Reference Include="IBM.XMS.Comms, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Comms.dll</HintPath>
+    </Reference>
+    <Reference Include="IBM.XMS.Comms.RMM, Version=1.0.3035.28838, Culture=neutral, PublicKeyToken=81279b988bfae9f8, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Comms.RMM.dll</HintPath>
+    </Reference>
+    <Reference Include="IBM.XMS.Comms.SSL, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Comms.SSL.dll</HintPath>
+    </Reference>
+    <Reference Include="IBM.XMS.Core, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="IBM.XMS.Formats.JMF, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Formats.JMF.dll</HintPath>
+    </Reference>
+    <Reference Include="IBM.XMS.Formats.MFP, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Formats.MFP.dll</HintPath>
+    </Reference>
+    <Reference Include="IBM.XMS.Impl, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Impl.dll</HintPath>
+    </Reference>
+    <Reference Include="IBM.XMS.Match, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Match.dll</HintPath>
+    </Reference>
+    <Reference Include="IBM.XMS.NLS, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.NLS.dll</HintPath>
+    </Reference>
+    <Reference Include="IBM.XMS.Provider, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Provider.dll</HintPath>
+    </Reference>
+    <Reference Include="IBM.XMS.SIB, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.SIB.dll</HintPath>
+    </Reference>
+    <Reference Include="IBM.XMS.Util, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Util.dll</HintPath>
+    </Reference>
+    <Reference Include="IBM.XMS.WMQI, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.WMQI.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Reactive.Core, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Reactive.Core.3.1.1\lib\net46\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Reactive.Interfaces.3.1.1\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Reactive.Linq.3.1.1\lib\net46\System.Reactive.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.PlatformServices, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Reactive.PlatformServices.3.1.1\lib\net46\System.Reactive.PlatformServices.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ObservableMessaging.Core\ObservableMessaging.Core.csproj" />
+    <Compile Include="InboundMessageQueue.cs" />
+    <Compile Include="OutboundMessageQueue.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ObservableMessaging.Core\ObservableMessaging.Core.csproj">
+      <Project>{93de4590-afa0-4585-8524-6be218c1e6de}</Project>
+      <Name>ObservableMessaging.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
