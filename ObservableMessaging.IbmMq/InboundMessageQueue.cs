@@ -117,16 +117,20 @@ namespace ObservableMessaging.IbmMq
 
                 if (_messageType.HasValue)
                     message.MessageType = _messageType.Value;
-                        
+
+                bool commitOrBackoutRequired = false;
                 try {  
                     try {
                         queue.Get(message, _mqgmo);
+                        if (_useTransactions)
+                            commitOrBackoutRequired = true;
+
                         logger.Debug($"DequeueTask {threadNum}: Received message {message.MessageId}");
 
                         _subject.OnNext(message);
                         logger.Debug($"DequeueTask {threadNum}: Message {message.MessageId} emitted successfully");
 
-                        if (_useTransactions) {
+                        if (commitOrBackoutRequired) {
                             logger.Debug($"DequeueTask {threadNum}: Committing message {message.MessageId}");
                             queueManager.Commit();
                         }
@@ -141,10 +145,10 @@ namespace ObservableMessaging.IbmMq
                 catch (Exception exc) {
                     logger.Info($"DequeueTask {threadNum}: Exception occurred during transaction, message backout count is {message.BackoutCount} ", exc);
                     try {
-                        if (_useTransactions) {
-                            logger.Info($"DequeueTask {threadNum}: Exception occurred during transaction, message backout count is {message.BackoutCount} ", exc);
+                        if (commitOrBackoutRequired) {
+                            logger.Info($"DequeueTask {threadNum}: Exception occurred during transaction, message rollback count is {message.BackoutCount} ", exc);
                             if (message.BackoutCount < _numBackoutAttempts) {
-                                logger.Info($"DequeueTask {threadNum}: Proceeding to backout after exception: {message.BackoutCount} / {_numBackoutAttempts}");
+                                logger.Info($"DequeueTask {threadNum}: Proceeding to rollback message after exception: {message.BackoutCount} / {_numBackoutAttempts}");
                                 queueManager.Backout();
                                 logger.Info($"DequeueTask {threadNum}: Message Rollback is complete");
                             }
@@ -164,6 +168,9 @@ namespace ObservableMessaging.IbmMq
                             }
                         }
                     }
+                    catch (Exception exc2) {
+                        logger.Info($"DequeueTask {threadNum}: Exception occurred during rollback", exc2);
+                    } 
                     finally {
                       
                         try {

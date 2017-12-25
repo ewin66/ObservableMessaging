@@ -127,6 +127,7 @@
     <Compile Include="InboundMessageQueue.cs" />
     <Compile Include="OutboundMessageQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Subjects\MQStringAdapterSubject.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
