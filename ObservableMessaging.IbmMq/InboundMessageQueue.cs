@@ -4,16 +4,23 @@ using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using IBM.WMQ;
+using log4net;
 using ObservableMessaging.Core.Interfaces;
 
 namespace ObservableMessaging.IbmMq
 {
     public class InboundMessageQueue : IObservable<MQMessage>, ICancellable, IDisposable
     {
+        private static readonly ILog logger = LogManager.GetLogger(typeof(InboundMessageQueue));
+
         private readonly string _qmgr;
         private readonly string _qname;
+        private readonly string _correlationId;
+        private readonly int? _messageType;
         private readonly int _concurrentWorkers;
         private readonly bool _useTransactions;
+        private readonly int _numBackoutAttempts;
+        private readonly IObserver<MQMessage> _errorQueue;
 
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly MQGetMessageOptions _mqgmo = new MQGetMessageOptions();
@@ -22,7 +29,7 @@ namespace ObservableMessaging.IbmMq
         private readonly Hashtable _connectionProperties = new Hashtable();
 
         private Task[] _dequeueTasks;
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -35,19 +42,27 @@ namespace ObservableMessaging.IbmMq
         /// <param name="useTransactions"></param>
         /// <param name="autoStart"></param>
         public InboundMessageQueue(
-            string qmgr, 
-            string qname, 
-            string channel=null, 
-            string host=null, 
-            int? port=null, 
+            string qmgr,
+            string qname,
+            string channel = null,
+            string host = null,
+            int? port = null,
+            string correlationId = null,
+            int? messageType = null,
             int concurrentWorkers = 1, 
             bool useTransactions = true,
-            bool autoStart = true) 
+            int numBackoutAttempts = 1,
+            bool autoStart = true,
+            IObserver<MQMessage> errorQueue = null) 
         {
             _qmgr = qmgr;
             _qname = qname;
             _concurrentWorkers = concurrentWorkers;
             _useTransactions = useTransactions;
+            _numBackoutAttempts = numBackoutAttempts;
+            _errorQueue = errorQueue;
+            _correlationId = correlationId;
+            _messageType = messageType;
 
             if (!string.IsNullOrEmpty(host))
                 _connectionProperties.Add(MQC.HOST_NAME_PROPERTY, host);
@@ -75,41 +90,90 @@ namespace ObservableMessaging.IbmMq
             if (_dequeueTasks == null) {
                 _dequeueTasks = new Task[_concurrentWorkers];
                 for (int i = 0; i < _concurrentWorkers; i++)
-                    _dequeueTasks[i] = Task.Factory.StartNew(DequeueTask);
+                    _dequeueTasks[i] = Task.Factory.StartNew(DequeueTask, i, _cancellationTokenSource.Token);
             }
         }
 
-        private void DequeueTask() {      
+        private void DequeueTask(object i) {
+            int threadNum = (int)i;
+#if DEBUG
+            logger.Info($" Dequeue thread {threadNum} running on thread ({Thread.CurrentThread.ManagedThreadId}: {Thread.CurrentThread.Name}) ");
+#endif
+
             MQQueueManager queueManager = null;
             MQQueue queue = null; 
 
             while( ! _cancellationTokenSource.Token.IsCancellationRequested ) {
 
-                if (queue == null || queueManager == null || !queueManager.IsConnected || !queueManager.IsOpen || !queue.IsOpen) {
+                if (queue == null || queueManager == null || !queueManager.IsConnected || !queue.IsOpen) {
                     queueManager = new MQQueueManager(_qmgr, _connectionProperties);
                     queue = queueManager.AccessQueue(_qname, MQC.MQOO_INPUT_AS_Q_DEF); 
                 }
 
                 MQMessage message = new MQMessage();
-                try {
-                    queue.Get(message, _mqgmo);
-                    _subject.OnNext(message);
-                    queueManager.Commit();
-                }
-                catch (MQException mqExc) {
-                    if (mqExc.Reason == 1234) {
-                        // message not available, ignore and micro-sleep 
-                        Task.Delay(10);
+
+                if (!string.IsNullOrEmpty(_correlationId))
+                    message.CorrelationId = System.Text.Encoding.UTF8.GetBytes(_correlationId);
+
+                if (_messageType.HasValue)
+                    message.MessageType = _messageType.Value;
+                        
+                try {  
+                    try {
+                        queue.Get(message, _mqgmo);
+                        logger.Debug($"DequeueTask {threadNum}: Received message {message.MessageId}");
+
+                        _subject.OnNext(message);
+                        logger.Debug($"DequeueTask {threadNum}: Message {message.MessageId} emitted successfully");
+
+                        if (_useTransactions) {
+                            logger.Debug($"DequeueTask {threadNum}: Committing message {message.MessageId}");
+                            queueManager.Commit();
+                        }
                     }
-                    else
-                    {
-                        queueManager.Backout();
-                        _subject.OnError(mqExc);
+                    catch (MQException mqExc) {
+                        if (mqExc.Reason == 2033) {
+                            // message not available, ignore and micro-sleep 
+                            Task.Delay(10);
+                        } else throw;
                     }
                 }
                 catch (Exception exc) {
-                    queueManager.Backout();
-                    _subject.OnError(exc);
+                    logger.Info($"DequeueTask {threadNum}: Exception occurred during transaction, message backout count is {message.BackoutCount} ", exc);
+                    try {
+                        if (_useTransactions) {
+                            logger.Info($"DequeueTask {threadNum}: Exception occurred during transaction, message backout count is {message.BackoutCount} ", exc);
+                            if (message.BackoutCount < _numBackoutAttempts) {
+                                logger.Info($"DequeueTask {threadNum}: Proceeding to backout after exception: {message.BackoutCount} / {_numBackoutAttempts}");
+                                queueManager.Backout();
+                                logger.Info($"DequeueTask {threadNum}: Message Rollback is complete");
+                            }
+                            else {
+                                if (_errorQueue == null) {
+                                    logger.Info($"DequeueTask {threadNum}: Error queue has not been enabled.");
+                                } else {
+                                    logger.Info($"DequeueTask {threadNum}: Proceed to emit message to error queue  {message.BackoutCount} / {_numBackoutAttempts}", exc);
+                                    try {
+                                        _errorQueue.OnNext(message);
+                                    }
+                                    catch (Exception exc2) {
+                                        logger.Info($"DequeueTask {threadNum}: Exception occurred while emiting message to error queue", exc2);
+                                        _errorQueue.OnError(exc2);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    finally {
+                      
+                        try {
+                            _subject.OnError(exc);
+                        }
+                        catch (Exception exc2) {
+                            logger.Info($"DequeueTask {threadNum}: Exception occurred while emiting exception event", exc2);
+                            _errorQueue.OnError(exc2);
+                        }
+                    }
                 }
             }
         }
@@ -123,6 +187,7 @@ namespace ObservableMessaging.IbmMq
         {
             _cancellationTokenSource.Cancel();
             Task.WaitAll(_dequeueTasks);
+            _dequeueTasks = null;
         }
 
         #region IDisposable Support
