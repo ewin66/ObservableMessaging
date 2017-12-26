@@ -1,4 +1,5 @@
 ﻿using ObservableMessaging.IbmMq.Core.Interfaces;
+using System;
 
 namespace ObservableMessaging.IbmMq.Core.Default
 {
@@ -9,11 +10,15 @@ namespace ObservableMessaging.IbmMq.Core.Default
 
     public class WMQDefaultMessage : IWMQMessage
     {
+        private byte[] _messageId = Guid.NewGuid().ToByteArray();
+
         public int BackoutCount { get; set; } = 0;
 
         public byte[] CorrelationId { get; set; }
 
         public int MessageLength => _value == null ? 0 : _value.Length;
+
+        public byte[] MessageId => _messageId;
 
         private string _value;
 

@@ -30,76 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="amqmdmsg, Version=8.0.0.7, Culture=neutral, PublicKeyToken=ab28406a0e0bb022, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\amqmdmsg.dll</HintPath>
-    </Reference>
-    <Reference Include="amqmdnet, Version=8.0.0.7, Culture=neutral, PublicKeyToken=dd3cb1c9aae9ec97, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\amqmdnet.dll</HintPath>
-    </Reference>
-    <Reference Include="amqmdnm, Version=8.0.0.7, Culture=neutral, PublicKeyToken=ba95863d803c00a4, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\amqmdnm.dll</HintPath>
-    </Reference>
-    <Reference Include="amqmdnsp, Version=8.0.0.7, Culture=neutral, PublicKeyToken=4ec3909022c7abcc, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\amqmdnsp.dll</HintPath>
-    </Reference>
-    <Reference Include="amqmdxcs, Version=8.0.0.7, Culture=neutral, PublicKeyToken=7a58d55a51981a15, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\amqmdxcs.dll</HintPath>
-    </Reference>
-    <Reference Include="IBM.XMS, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.dll</HintPath>
-    </Reference>
-    <Reference Include="IBM.XMS.Admin, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Admin.dll</HintPath>
-    </Reference>
-    <Reference Include="IBM.XMS.Admin.Objects, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Admin.Objects.dll</HintPath>
-    </Reference>
-    <Reference Include="IBM.XMS.Client.Impl, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Client.Impl.dll</HintPath>
-    </Reference>
-    <Reference Include="IBM.XMS.Client.WMQ, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Client.WMQ.dll</HintPath>
-    </Reference>
-    <Reference Include="IBM.XMS.Comms, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Comms.dll</HintPath>
-    </Reference>
-    <Reference Include="IBM.XMS.Comms.RMM, Version=1.0.3035.28838, Culture=neutral, PublicKeyToken=81279b988bfae9f8, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Comms.RMM.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="IBM.XMS.Comms.SSL, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Comms.SSL.dll</HintPath>
-    </Reference>
-    <Reference Include="IBM.XMS.Core, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="IBM.XMS.Formats.JMF, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Formats.JMF.dll</HintPath>
-    </Reference>
-    <Reference Include="IBM.XMS.Formats.MFP, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Formats.MFP.dll</HintPath>
-    </Reference>
-    <Reference Include="IBM.XMS.Impl, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Impl.dll</HintPath>
-    </Reference>
-    <Reference Include="IBM.XMS.Match, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Match.dll</HintPath>
-    </Reference>
-    <Reference Include="IBM.XMS.NLS, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.NLS.dll</HintPath>
-    </Reference>
-    <Reference Include="IBM.XMS.Provider, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Provider.dll</HintPath>
-    </Reference>
-    <Reference Include="IBM.XMS.SIB, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.SIB.dll</HintPath>
-    </Reference>
-    <Reference Include="IBM.XMS.Util, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.Util.dll</HintPath>
-    </Reference>
-    <Reference Include="IBM.XMS.WMQI, Version=8.0.0.7, Culture=neutral, PublicKeyToken=d2666ab12fca862b, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSphereMqClient.8.0.0.7\lib\net20\IBM.XMS.WMQI.dll</HintPath>
-    </Reference>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
     </Reference>
@@ -126,7 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Default\WMQDefaultGetMessageOptions.cs" />
-    <Compile Include="InboundMessageQueue.cs" />
+    <Compile Include="RawInboundMessageQueue.cs" />
     <Compile Include="Interfaces\IWMQMessageQueueManager.cs" />
     <Compile Include="Interfaces\IWMQQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

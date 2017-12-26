@@ -139,10 +139,6 @@
       <Project>{93de4590-afa0-4585-8524-6be218c1e6de}</Project>
       <Name>ObservableMessaging.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ObservableMessaging.IbmMq.Core\ObservableMessaging.IbmMq.Core.csproj">
-      <Project>{0ADBA5C6-DB3F-4DDF-927C-D8F12DE66C6D}</Project>
-      <Name>ObservableMessaging.IbmMq.Core</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ObservableMessaging.IbmMq\ObservableMessaging.IbmMq.csproj">
       <Project>{9a869466-4b12-4749-ae42-4b3a7ee46b31}</Project>
       <Name>ObservableMessaging.IbmMq</Name>

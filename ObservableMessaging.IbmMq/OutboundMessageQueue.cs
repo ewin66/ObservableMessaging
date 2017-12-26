@@ -1,39 +1,55 @@
-﻿using System;
-using IBM.WMQ;
-using ObservableMessaging.IbmMq.Core.Interfaces;
+﻿using IBM.WMQ;
+using log4net;
+using ObservableMessaging.IbmMq.Helpers;
+using System;
+using System.Collections;
 
 namespace ObservableMessaging.IbmMq
 {
-    public class OutboundMessageQueue : IObserver<IWMQMessage>
+    public class OutboundMessageQueue : IObserver<MQMessage>
     {
-        private string v1;
-        private string v2;
-        private string host;
-        private int port;
-        private string channel;
+        private static readonly ILog logger = LogManager.GetLogger(typeof(OutboundMessageQueue));
 
-        public OutboundMessageQueue(string v1, string v2, string host, int port, string channel)
+        private readonly string _qmgr;
+        private readonly string _qname;
+        private readonly string host;
+        private readonly int? port;
+        private readonly string channel;
+        private readonly Func<MQQueueManager> _mqQueueManagerFactory;
+
+        private readonly Hashtable _connectionProperties;
+
+        private MQQueueManager queueManager = null;
+        private MQQueue queue = null;
+
+        public OutboundMessageQueue(string qmgr, string qname, string host, int? port, string channel, Func<MQQueueManager> mqQueueManagerFactory=null)
         {
-            this.v1 = v1;
-            this.v2 = v2;
+            this._qmgr = qmgr;
+            this._qname = qname;
             this.host = host;
             this.port = port;
             this.channel = channel;
+            _connectionProperties = MQConnectionPropertiesHelper.CreateConnectionProperties(channel, host, port);
+
+            _mqQueueManagerFactory = mqQueueManagerFactory??  ( () => new MQQueueManager(_qmgr, _connectionProperties) );
         }
 
         public void OnCompleted()
         {
- //           throw new NotImplementedException();
         }
 
         public void OnError(Exception error)
         {
-//            throw new NotImplementedException();
         }
 
-        public void OnNext(IWMQMessage value)
+        public void OnNext(MQMessage value)
         {
-//            throw new NotImplementedException();
+            if (queue == null || queueManager == null || !queueManager.IsConnected || !queue.IsOpen) {
+                queueManager = _mqQueueManagerFactory();
+                queue = queueManager.AccessQueue(_qname, MQC.MQOO_INPUT_AS_Q_DEF | MQC.MQOO_OUTPUT);
+            }
+            MQPutMessageOptions pmo = new MQPutMessageOptions();
+            queue.Put(value, pmo);
         }
     }
 }

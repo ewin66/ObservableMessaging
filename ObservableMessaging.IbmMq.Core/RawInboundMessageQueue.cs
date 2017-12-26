@@ -31,7 +31,6 @@ namespace ObservableMessaging.IbmMq
         private readonly IWMQGetMessageOptions _mqgmo;
         private readonly object _connectionLock = new object();
         private readonly Subject<IWMQMessage> _subject = new Subject<IWMQMessage>();
-        private static volatile int _messageCount = 0;
 
         private Task[] _dequeueTasks;
 
@@ -72,12 +71,6 @@ namespace ObservableMessaging.IbmMq
             _exceptions = exceptions;
 
             _messageFactory = messageFactory == null ? () => new WMQDefaultMessage() : messageFactory;
-            //_mqgmo.Options = 0;
-            //if (_useTransactions) {
-            //    _mqgmo.Options |= MQC.MQGMO_SYNCPOINT;
-            //}
-            //_mqgmo.Options |= MQC.MQGMO_WAIT;
-            //_mqgmo.Options |= MQC.MQGMO_FAIL_IF_QUIESCING;
             _mqgmo = messageOptionsFactory==null? new WMQDefaultGetMessageOptions() : messageOptionsFactory();
             _mqQueueManagerFactory = mqQueueManagerFactory;
 
@@ -88,10 +81,12 @@ namespace ObservableMessaging.IbmMq
 
         public void Start() {
             if (_dequeueTasks == null) {
+                logger.Info($"Starting {_numConcurrentDequeueTasks} Dequeue tasks");
                 _dequeueTasks = new Task[_numConcurrentDequeueTasks];
                 for (int i = 0; i < _numConcurrentDequeueTasks; i++)
                     _dequeueTasks[i] = Task.Factory.StartNew(DequeueTask, i, _cancellationTokenSource.Token);
-            }
+            } else
+                logger.Warn($"Dequeue tasks have already started.");
         }
 
         private void DequeueTask(object i) {
@@ -101,9 +96,8 @@ namespace ObservableMessaging.IbmMq
 #endif
 
             IWMQQueueManager queueManager = null;
-            IWMQQueue queue = null; 
-
-            while( ! _cancellationTokenSource.Token.IsCancellationRequested ) {
+            IWMQQueue queue = null;
+            while (! _cancellationTokenSource.Token.IsCancellationRequested ) {
 
                 if (queue == null || queueManager == null || !queueManager.IsConnected || !queue.IsOpen) {
                     logger.Debug($"DequeueTask {threadNum}: Initializing connection to queue {_qname}");
@@ -119,7 +113,8 @@ namespace ObservableMessaging.IbmMq
                         if (_useTransactions)
                             commitOrBackoutRequired = true;
 
-                        int messageId = Interlocked.Increment(ref _messageCount);
+                        int messageIdLength = message.MessageId.Length;
+                        string messageId = (messageIdLength > 16)? BitConverter.ToString(message.MessageId, messageIdLength-16, 16) : BitConverter.ToString(message.MessageId, 0, messageIdLength);
                         logger.Debug($"DequeueTask {threadNum}: Received message {messageId}");
 
                         _subject.OnNext(message);
@@ -133,7 +128,7 @@ namespace ObservableMessaging.IbmMq
                     catch (MQException mqExc) {
                         if (mqExc.Reason == 2033) {
                             // message not available, ignore and micro-sleep 
-                            Task.Delay(10);
+                            Task.Delay(50);
                         } else throw;
                     }
                 }

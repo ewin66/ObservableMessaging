@@ -2,12 +2,11 @@
 using System.Collections;
 using System.Reactive.Linq;
 using IBM.WMQ;
-using ObservableMessaging.IbmMq.Core.Default;
-using ObservableMessaging.IbmMq.Core.Interfaces;
+using ObservableMessaging.IbmMq.Helpers;
 
 namespace ObservableMessaging.IbmMq
 {
-    public class InboundMessageQueue : IObservable<IWMQMessage>
+    public class InboundMessageQueue : IObservable<MQMessage>
     {
         private readonly Hashtable _connectionProperties;
         private readonly string _qmgr;
@@ -35,47 +34,30 @@ namespace ObservableMessaging.IbmMq
             bool useTransactions = true,
             int numBackoutAttempts = 1,
             bool autoStart = true,
-            IObserver<IWMQMessage> errorQueue = null,
+            IObserver<MQMessage> errorQueue = null,
             IObserver<Exception> exceptions = null)
         {
             _qmgr = qmgr;
             _useTransactions = useTransactions;
-            Hashtable connectionProperties = CreateConnectionProperties(channel, host, port);
-            _connectionProperties = connectionProperties;
+            _connectionProperties = MQConnectionPropertiesHelper.CreateConnectionProperties(channel, host, port);
 
             _underlying = new RawInboundMessageQueue(qmgr, qname, channel, host, port, correlationId, messageType, concurrentWorkers, useTransactions, numBackoutAttempts, autoStart, errorQueue, exceptions, NewMessageOptions, NewMessage, NewQueueManager);
         }
 
-        private static Hashtable CreateConnectionProperties(string channel, string host, int? port)
-        {
-            Hashtable connectionProperties = new Hashtable();
-            if (!string.IsNullOrEmpty(host))
-                connectionProperties.Add(MQC.HOST_NAME_PROPERTY, host);
-
-            if (!string.IsNullOrEmpty(channel))
-                connectionProperties.Add(MQC.CHANNEL_PROPERTY, channel);
-
-            if (port.HasValue)
-                connectionProperties.Add(MQC.PORT_PROPERTY, port.Value);
-
-            connectionProperties.Add(MQC.TRANSPORT_PROPERTY, MQC.TRANSPORT_MQSERIES_MANAGED);
-            return connectionProperties;
-        }
-
-        public IDisposable Subscribe(IObserver<IWMQMessage> observer)
+        public IDisposable Subscribe(IObserver<MQMessage> observer)
         {
             return _underlying.Subscribe(observer);
         }
 
-        private IWMQMessage NewMessage()
+        private MQMessage NewMessage()
         {
             MQMessage mqMessage = new MQMessage();
-            return new WMQMessage(mqMessage);
+            return mqMessage;
         }
 
-        private IWMQGetMessageOptions NewMessageOptions()
+        private MQGetMessageOptions NewMessageOptions()
         {
-            IWMQGetMessageOptions mqgmo = new WMQDefaultGetMessageOptions();
+            MQGetMessageOptions mqgmo = new MQGetMessageOptions();
             mqgmo.Options = 0;
             if (_useTransactions)  {
                 mqgmo.Options |= MQC.MQGMO_SYNCPOINT;
@@ -85,9 +67,9 @@ namespace ObservableMessaging.IbmMq
             return mqgmo;
         }
 
-        private IWMQQueueManager NewQueueManager()
+        private MQQueueManager NewQueueManager()
         {
-            return new WMQQueueManager(_qmgr, _connectionProperties);
+            return new MQQueueManager(_qmgr, _connectionProperties);
         }
     }
 }

@@ -14,6 +14,7 @@
         int BackoutCount { get; }
         byte[] CorrelationId { get; set; }
         int MessageLength { get; }
+        byte[] MessageId { get; }
 
         void WriteString(string value);
         string ReadString(int messageLength);

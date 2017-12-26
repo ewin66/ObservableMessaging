@@ -124,13 +124,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\MQConnectionPropertiesHelper.cs" />
     <Compile Include="InboundMessageQueue.cs" />
     <Compile Include="OutboundMessageQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RawInboundMessageQueue.cs" />
     <Compile Include="Subjects\MQStringAdapterSubject.cs" />
-    <Compile Include="WMQMessage.cs" />
-    <Compile Include="WMQQueue.cs" />
-    <Compile Include="WMQQueueManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -140,10 +139,6 @@
     <ProjectReference Include="..\ObservableMessaging.Core\ObservableMessaging.Core.csproj">
       <Project>{93de4590-afa0-4585-8524-6be218c1e6de}</Project>
       <Name>ObservableMessaging.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ObservableMessaging.IbmMq.Core\ObservableMessaging.IbmMq.Core.csproj">
-      <Project>{0ADBA5C6-DB3F-4DDF-927C-D8F12DE66C6D}</Project>
-      <Name>ObservableMessaging.IbmMq.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
