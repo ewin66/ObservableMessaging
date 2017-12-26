@@ -115,13 +115,56 @@ namespace ObservableMessaging.IbmMq
                         string messageId = (messageIdLength > 8)? BitConverter.ToString(message.MessageId, messageIdLength - 8, 8) : BitConverter.ToString(message.MessageId, 0, messageIdLength);
                         logger.Debug($"DequeueTask {threadNum}: Received message {messageId}");
 
-                        _subject.OnNext(message);
-                        logger.Debug($"DequeueTask {threadNum}: Message {messageId} emitted successfully");
-
-                        if (commitOrBackoutRequired) {
-                            logger.Debug($"DequeueTask {threadNum}: Committing message {messageId}");
-                            queueManager.Commit();
+                        try {
+                            _subject.OnNext(message);
+                            logger.Debug($"DequeueTask {threadNum}: Message {messageId} emitted successfully");
+                            if (commitOrBackoutRequired) {
+                                logger.Debug($"DequeueTask {threadNum}: Committing message {messageId}");
+                                queueManager.Commit();
+                            }
                         }
+                        catch (Exception subjectException)  {
+                            logger.Error($"DequeueTask {threadNum}: Exception occurred within the subject, proceed to commit/rollback/errorqueue phase ", subjectException);
+                            try {
+
+                                if (commitOrBackoutRequired) {
+                                    logger.Info($"DequeueTask {threadNum}: Exception occurred during transaction, message rollback count is {message.BackoutCount} ");
+                                    if (message.BackoutCount < _numBackoutAttempts) {
+                                        logger.Info($"DequeueTask {threadNum}: Proceeding to rollback message after exception: {message.BackoutCount} of {_numBackoutAttempts} attempts");
+                                        queueManager.Backout();
+                                        logger.Info($"DequeueTask {threadNum}: Message rollback is complete");
+                                    } else {
+                                        logger.Info($"DequeueTask {threadNum}: Message backout count {message.BackoutCount} equals or exceeds max threshold of {_numBackoutAttempts} attempt(s), committing message off queue...");
+                                        queueManager.Commit();
+
+                                        if (_errorQueue == null) {
+                                            logger.Info($"DequeueTask {threadNum}: Error queue has not been enabled, message will be discarded.");
+                                        } else  {
+                                            logger.Info($"DequeueTask {threadNum}: Proceed to emit message to error queue  {message.BackoutCount} / {_numBackoutAttempts}");
+                                            try {
+                                                _errorQueue.OnNext(message);
+                                            }
+                                            catch (Exception exc2)  {
+                                                logger.Info($"DequeueTask {threadNum}: Exception occurred while emiting message to error queue", exc2);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception exc2) {
+                                logger.Info($"DequeueTask {threadNum}: Exception occurred during commit/rollback/errorqueue phase", exc2);
+                            }
+                            finally {
+
+                                    try {
+                                        _exceptions?.OnNext(subjectException);
+                                    }
+                                    catch (Exception exc2)  {
+                                        logger.Info($"DequeueTask {threadNum}: Exception occurred while emiting exception event to subject", exc2);
+                                    }
+                            }
+                        }
+
                     }
                     catch (MQException mqExc) {
                         if (mqExc.Reason == 2033) {
@@ -131,48 +174,7 @@ namespace ObservableMessaging.IbmMq
                     }
                 }
                 catch (Exception exc) {
-
-                    logger.Error($"DequeueTask {threadNum}: Exception occurred during transaction", exc);
-                    try {
-
-                        if (commitOrBackoutRequired) {
-                            logger.Info($"DequeueTask {threadNum}: Exception occurred during transaction, message rollback count is {message.BackoutCount} ", exc);
-                            if (message.BackoutCount < _numBackoutAttempts) {
-                                logger.Info($"DequeueTask {threadNum}: Proceeding to rollback message after exception: {message.BackoutCount} / {_numBackoutAttempts}");
-                                queueManager.Backout();
-                                logger.Info($"DequeueTask {threadNum}: Message Rollback is complete");
-                            }
-                            else {
-                                logger.Info($"DequeueTask {threadNum}: backout count exceeds threshold, committing message off queue...");
-                                queueManager.Commit();
-
-                                if (_errorQueue == null) {
-                                    logger.Info($"DequeueTask {threadNum}: Error queue has not been enabled.");
-                                } else {
-                                    logger.Info($"DequeueTask {threadNum}: Proceed to emit message to error queue  {message.BackoutCount} / {_numBackoutAttempts}", exc);
-                                    try {
-                                        _errorQueue.OnNext(message);
-                                    }
-                                    catch (Exception exc2) {
-                                        logger.Info($"DequeueTask {threadNum}: Exception occurred while emiting message to error queue", exc2);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception exc2) {
-                        logger.Info($"DequeueTask {threadNum}: Exception occurred during rollback", exc2);
-                    } 
-                    finally {
-                      
-                        if (_exceptions != null)
-                            try {
-                                _exceptions.OnNext(exc);
-                            }
-                            catch (Exception exc2) {
-                                logger.Info($"DequeueTask {threadNum}: Exception occurred while emiting exception event to subject", exc2);
-                            }
-                    }
+                    logger.Error($"DequeueTask {threadNum}: Exception occurred during dequeue task loop", exc);
                 }
             }
         }
