@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObservableMessaging.IbmMq",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObservableMessaging.IbmMq.Console", "ObservableMessaging.IbmMq.Console\ObservableMessaging.IbmMq.Console.csproj", "{0980FB0A-7E0B-4E2F-B520-35CDCF6A5E6D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObservableMessaging.IbmMq.Core", "ObservableMessaging.IbmMq.Core\ObservableMessaging.IbmMq.Core.csproj", "{0ADBA5C6-DB3F-4DDF-927C-D8F12DE66C6D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{0980FB0A-7E0B-4E2F-B520-35CDCF6A5E6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0980FB0A-7E0B-4E2F-B520-35CDCF6A5E6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0980FB0A-7E0B-4E2F-B520-35CDCF6A5E6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0ADBA5C6-DB3F-4DDF-927C-D8F12DE66C6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ADBA5C6-DB3F-4DDF-927C-D8F12DE66C6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0ADBA5C6-DB3F-4DDF-927C-D8F12DE66C6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0ADBA5C6-DB3F-4DDF-927C-D8F12DE66C6D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

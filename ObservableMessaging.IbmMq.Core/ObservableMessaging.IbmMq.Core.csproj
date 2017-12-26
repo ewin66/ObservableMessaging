@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0980FB0A-7E0B-4E2F-B520-35CDCF6A5E6D}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>ObservableMessaging.IbmMq.Console</RootNamespace>
-    <AssemblyName>ObservableMessaging.IbmMq.Console</AssemblyName>
+    <ProjectGuid>{0ADBA5C6-DB3F-4DDF-927C-D8F12DE66C6D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ObservableMessaging.IbmMq.Core</RootNamespace>
+    <AssemblyName>ObservableMessaging.IbmMq.Core</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -127,25 +125,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="InboundMessageQueue.cs" />
+    <Compile Include="Interfaces\IWMQMessageQueueManager.cs" />
+    <Compile Include="Interfaces\IWMQQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ObservableMessaging.Core\ObservableMessaging.Core.csproj">
       <Project>{93de4590-afa0-4585-8524-6be218c1e6de}</Project>
       <Name>ObservableMessaging.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ObservableMessaging.IbmMq.Core\ObservableMessaging.IbmMq.Core.csproj">
-      <Project>{0ADBA5C6-DB3F-4DDF-927C-D8F12DE66C6D}</Project>
-      <Name>ObservableMessaging.IbmMq.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ObservableMessaging.IbmMq\ObservableMessaging.IbmMq.csproj">
-      <Project>{9a869466-4b12-4749-ae42-4b3a7ee46b31}</Project>
-      <Name>ObservableMessaging.IbmMq</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
