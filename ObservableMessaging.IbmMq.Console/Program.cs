@@ -3,7 +3,6 @@ using log4net;
 using ObservableMessaging.IbmMq.Subjects;
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ObservableMessaging.IbmMq.ConsoleApp
 {
@@ -13,10 +12,10 @@ namespace ObservableMessaging.IbmMq.ConsoleApp
 
         static void Main(string[] args)
         {
-            IObserver<MQMessage> errorQueue = new OutboundMessageQueue("QM1", "DEV.DEAD.LETTER.QUEUE", host: "johns-mac-pro.local", port: 1414, channel: "DEV.APP.SVRCONN");
+            IObserver<MQMessage> errorQueue = new OutboundMessageQueue("QM1", "DEV.DEAD.LETTER.QUEUE", host: "mqhost.local", port: 1414, channel: "DEV.APP.SVRCONN");
 
-            IObservable<MQMessage> inbound = new InboundMessageQueue("QM1", "DEV.QUEUE.1", host: "johns-mac-pro.local", port: 1414, channel: "DEV.APP.SVRCONN", errorQueue: errorQueue);
-            IObserver<MQMessage> outbound = new OutboundMessageQueue("QM1", "DEV.QUEUE.1", host: "johns-mac-pro.local", port: 1414, channel: "DEV.APP.SVRCONN");
+            IObservable<MQMessage> inbound = new InboundMessageQueue("QM1", "DEV.QUEUE.1", host: "mqhost.local", port: 1414, channel: "DEV.APP.SVRCONN", errorQueue: errorQueue);
+            IObserver<MQMessage> outbound = new OutboundMessageQueue("QM1", "DEV.QUEUE.1", host: "mqhost.local", port: 1414, channel: "DEV.APP.SVRCONN");
 
             IObservable<string> stringObservable = new MQStringAdapterSubject(inbound);
 
@@ -26,8 +25,9 @@ namespace ObservableMessaging.IbmMq.ConsoleApp
             });
 
             while (true) {
-                MQMessage message = new IBM.WMQ.MQMessage();
+                MQMessage message = new MQMessage();
                 message.WriteString("hello");
+
                 outbound.OnNext(message);
                 Thread.Sleep(250);
             }
