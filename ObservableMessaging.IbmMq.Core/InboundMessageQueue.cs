@@ -1,17 +1,16 @@
 ﻿using System;
-using System.Collections;
-using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using IBM.WMQ;
 using log4net;
 using ObservableMessaging.Core.Interfaces;
+using ObservableMessaging.IbmMq.Core.Default;
 using ObservableMessaging.IbmMq.Core.Interfaces;
 
 namespace ObservableMessaging.IbmMq
 {
-    public class RawInboundMessageQueue : IObservable<MQMessage>, ICancellable, IDisposable
+    public class RawInboundMessageQueue : IObservable<IWMQMessage>, ICancellable, IDisposable
     {
         private static readonly ILog logger = LogManager.GetLogger(typeof(RawInboundMessageQueue));
 
@@ -19,25 +18,23 @@ namespace ObservableMessaging.IbmMq
         private readonly string _qname;
         private readonly string _correlationId;
         private readonly int? _messageType;
-        private readonly int _concurrentWorkers;
+        private readonly int _numConcurrentDequeueTasks;
         private readonly bool _useTransactions;
         private readonly int _numBackoutAttempts;
-        private readonly IObserver<MQMessage> _errorQueue;
+
+        private readonly IObserver<IWMQMessage> _errorQueue;
         private readonly IObserver<Exception> _exceptions;
         private readonly Func<IWMQQueueManager> _mqQueueManagerFactory;
-
+        private readonly Func<IWMQMessage> _messageFactory;
 
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        private readonly MQGetMessageOptions _mqgmo = new MQGetMessageOptions();
+        private readonly IWMQGetMessageOptions _mqgmo;
         private readonly object _connectionLock = new object();
-        private readonly Subject<MQMessage> _subject = new Subject<MQMessage>();
+        private readonly Subject<IWMQMessage> _subject = new Subject<IWMQMessage>();
         private static volatile int _messageCount = 0;
 
         private Task[] _dequeueTasks;
 
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="qmgr"></param>
         /// <param name="qname"></param>
         /// <param name="channel"></param>
@@ -58,13 +55,15 @@ namespace ObservableMessaging.IbmMq
             bool useTransactions = true,
             int numBackoutAttempts = 1,
             bool autoStart = true,
-            IObserver<MQMessage> errorQueue = null,
+            IObserver<IWMQMessage> errorQueue = null,
             IObserver<Exception> exceptions = null,
+            Func<IWMQGetMessageOptions> messageOptionsFactory = null,
+            Func<IWMQMessage> messageFactory = null,
             Func<IWMQQueueManager> mqQueueManagerFactory = null) 
         {
             _qmgr = qmgr;
             _qname = qname;
-            _concurrentWorkers = concurrentWorkers;
+            _numConcurrentDequeueTasks = concurrentWorkers;
             _useTransactions = useTransactions;
             _numBackoutAttempts = numBackoutAttempts;
             _errorQueue = errorQueue;
@@ -72,12 +71,14 @@ namespace ObservableMessaging.IbmMq
             _messageType = messageType;
             _exceptions = exceptions;
 
-            _mqgmo.Options = 0;
-            if (_useTransactions) {
-                _mqgmo.Options |= MQC.MQGMO_SYNCPOINT;
-            }
-            _mqgmo.Options |= MQC.MQGMO_WAIT;
-            _mqgmo.Options |= MQC.MQGMO_FAIL_IF_QUIESCING;
+            _messageFactory = messageFactory == null ? () => new WMQDefaultMessage() : messageFactory;
+            //_mqgmo.Options = 0;
+            //if (_useTransactions) {
+            //    _mqgmo.Options |= MQC.MQGMO_SYNCPOINT;
+            //}
+            //_mqgmo.Options |= MQC.MQGMO_WAIT;
+            //_mqgmo.Options |= MQC.MQGMO_FAIL_IF_QUIESCING;
+            _mqgmo = messageOptionsFactory==null? new WMQDefaultGetMessageOptions() : messageOptionsFactory();
             _mqQueueManagerFactory = mqQueueManagerFactory;
 
             if (autoStart) {
@@ -87,8 +88,8 @@ namespace ObservableMessaging.IbmMq
 
         public void Start() {
             if (_dequeueTasks == null) {
-                _dequeueTasks = new Task[_concurrentWorkers];
-                for (int i = 0; i < _concurrentWorkers; i++)
+                _dequeueTasks = new Task[_numConcurrentDequeueTasks];
+                for (int i = 0; i < _numConcurrentDequeueTasks; i++)
                     _dequeueTasks[i] = Task.Factory.StartNew(DequeueTask, i, _cancellationTokenSource.Token);
             }
         }
@@ -110,14 +111,7 @@ namespace ObservableMessaging.IbmMq
                     queue = queueManager.AccessQueue(_qname, MQC.MQOO_INPUT_AS_Q_DEF); 
                 }
 
-                MQMessage message = new MQMessage();
-
-                if (!string.IsNullOrEmpty(_correlationId))
-                    message.CorrelationId = System.Text.Encoding.UTF8.GetBytes(_correlationId);
-
-                if (_messageType.HasValue)
-                    message.MessageType = _messageType.Value;
-
+                IWMQMessage message = _messageFactory();
                 bool commitOrBackoutRequired = false;
                 try {  
                     try {
@@ -145,7 +139,7 @@ namespace ObservableMessaging.IbmMq
                 }
                 catch (Exception exc) {
 
-                    logger.Info($"DequeueTask {threadNum}: Exception occurred during transaction", exc);
+                    logger.Error($"DequeueTask {threadNum}: Exception occurred during transaction", exc);
                     try {
 
                         if (commitOrBackoutRequired) {
@@ -190,7 +184,7 @@ namespace ObservableMessaging.IbmMq
             }
         }
 
-        public IDisposable Subscribe(IObserver<MQMessage> observer)
+        public IDisposable Subscribe(IObserver<IWMQMessage> observer)
         {
             return _subject.Subscribe(observer);
         }

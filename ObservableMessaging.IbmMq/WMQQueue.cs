@@ -1,5 +1,6 @@
 ﻿using IBM.WMQ;
 using ObservableMessaging.IbmMq.Core.Interfaces;
+using System;
 
 namespace ObservableMessaging.IbmMq
 {
@@ -14,19 +15,33 @@ namespace ObservableMessaging.IbmMq
 
         public bool IsOpen => _underlying.IsOpen;
 
-        public void Get(MQMessage message, MQGetMessageOptions gmo, int maxMsgSize, int spigmo)
+        public void Get(IWMQMessage message, IWMQGetMessageOptions gmo, int maxMsgSize, int spigmo)
         {
-            _underlying.Get(message, gmo, maxMsgSize, spigmo);
+            MQMessage mqMessage = new MQMessage();
+            MQGetMessageOptions getMessageOptions = new MQGetMessageOptions();
+            getMessageOptions.Options = gmo.Options;
+            _underlying.Get(mqMessage, getMessageOptions, maxMsgSize, spigmo);
+            string value = mqMessage.ReadString(mqMessage.MessageLength);
+            message.WriteString(value);
         }
 
-        public void Get(MQMessage message)
+        public void Get(IWMQMessage message)
         {
-            _underlying.Get(message);
+            MQMessage mqMessage = new MQMessage();
+            _underlying.Get(mqMessage);
+            string value = mqMessage.ReadString(mqMessage.MessageLength);
+            message.WriteString(value);
         }
 
-        public void Get(MQMessage message, MQGetMessageOptions gmo)
+        public void Get(IWMQMessage message, IWMQGetMessageOptions gmo)
         {
-            _underlying.Get(message, gmo);
+            if (message is WMQMessage) {
+                MQMessage mqMessage = ((WMQMessage)message).MQMessage;
+                MQGetMessageOptions getMessageOptions = new MQGetMessageOptions();
+                getMessageOptions.Options = gmo.Options;
+                _underlying.Get(mqMessage, getMessageOptions);
+            }
+            else throw new ArgumentException($"Expected message of type {nameof(WMQMessage)}");
         }
     }
 

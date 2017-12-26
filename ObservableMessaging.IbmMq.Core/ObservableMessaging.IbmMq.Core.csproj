@@ -125,6 +125,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Default\WMQDefaultGetMessageOptions.cs" />
     <Compile Include="InboundMessageQueue.cs" />
     <Compile Include="Interfaces\IWMQMessageQueueManager.cs" />
     <Compile Include="Interfaces\IWMQQueue.cs" />

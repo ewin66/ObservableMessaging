@@ -128,6 +128,7 @@
     <Compile Include="OutboundMessageQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Subjects\MQStringAdapterSubject.cs" />
+    <Compile Include="WMQMessage.cs" />
     <Compile Include="WMQQueue.cs" />
     <Compile Include="WMQQueueManager.cs" />
   </ItemGroup>
@@ -144,9 +145,6 @@
       <Project>{0ADBA5C6-DB3F-4DDF-927C-D8F12DE66C6D}</Project>
       <Name>ObservableMessaging.IbmMq.Core</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,17 +1,17 @@
-﻿using IBM.WMQ;
+﻿using ObservableMessaging.IbmMq.Core.Interfaces;
 using System;
 using System.Reactive.Subjects;
 
 namespace ObservableMessaging.IbmMq.Subjects
 {
-    public class MQStringAdapterSubject : ISubject<MQMessage, string>
+    public class MQStringAdapterSubject : ISubject<IWMQMessage, string>
     {
-        private readonly IObservable<MQMessage> _incomming;
+        private readonly IObservable<IWMQMessage> _incomming;
         private readonly IObserver<Exception> _exceptions;
 
         private readonly Subject<string> _subject = new Subject<string>();
 
-        public MQStringAdapterSubject(IObservable<MQMessage> incomming, IObserver<Exception> exceptions = null)
+        public MQStringAdapterSubject(IObservable<IWMQMessage> incomming, IObserver<Exception> exceptions = null)
         {
             _incomming = incomming;
             _exceptions = exceptions;
@@ -28,7 +28,7 @@ namespace ObservableMessaging.IbmMq.Subjects
             _subject.OnError(error);
         }
 
-        public void OnNext(MQMessage value)
+        public void OnNext(IWMQMessage value)
         {
             string readString = value.ReadString(value.MessageLength);
             try {

@@ -1,9 +1,10 @@
 ﻿using System;
 using IBM.WMQ;
+using ObservableMessaging.IbmMq.Core.Interfaces;
 
 namespace ObservableMessaging.IbmMq
 {
-    public class OutboundMessageQueue : IObserver<MQMessage>
+    public class OutboundMessageQueue : IObserver<IWMQMessage>
     {
         private string v1;
         private string v2;
@@ -30,7 +31,7 @@ namespace ObservableMessaging.IbmMq
 //            throw new NotImplementedException();
         }
 
-        public void OnNext(MQMessage value)
+        public void OnNext(IWMQMessage value)
         {
 //            throw new NotImplementedException();
         }
